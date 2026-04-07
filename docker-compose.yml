@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  yt-transcript:
+    build: .
+    container_name: yt-transcript-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - LITELLM_API_BASE=${LITELLM_API_BASE:-https://litellm.vllm.yesy.online/v1}
+      - LITELLM_API_KEY=${LITELLM_API_KEY}
+      - SUMMARY_MODEL=${SUMMARY_MODEL:-claude-opus-4-6}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-large}
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
