@@ -48,24 +48,33 @@ class DiagramGenerator:
         """Analyze transcript to determine best diagram types"""
         
         prompt = f"""
-        Analyze this trading video transcript and determine the best diagram types to represent the content.
+        CRITICAL: This is a TRADING EDUCATION video. EVERY concept, rule, and principle taught is IMPORTANT and must be captured.
+        
+        Analyze this trading video transcript and determine the best diagram types to represent ALL content.
         
         Available diagram types:
-        - flowchart: For trading systems, decision processes, entry/exit rules
-        - mindmap: For trading concepts, strategies, knowledge structures
+        - flowchart: For trading systems, decision processes, entry/exit rules (MUST capture ALL rules explicitly)
+        - mindmap: For trading concepts, strategies, knowledge structures (ALL concepts are important)
         - timeline: For daily/weekly reviews, trading schedules, event sequences
         - sequence: For trade execution flows, system interactions
-        - gantt: For trading plans, position management over time
+        
+        CRITICAL TRADING PRINCIPLES:
+        1. ALL mentor teachings are KEY - do not skip any concept
+        2. RULE-BASED content must be extracted with EXPLICIT clarity (e.g., "if X then Y", "always do Z")
+        3. Trading requires DISCIPLINE - rules must be clear and actionable
+        4. Every strategy component, risk rule, and psychological principle matters
         
         Transcript:
-        {transcript_text[:10000]}
+        {transcript_text}
         
         Return JSON format:
         {{
-            "primary_type": "flowchart|mindmap|timeline|sequence|gantt",
+            "primary_type": "flowchart|mindmap|timeline|sequence",
             "secondary_types": ["mindmap", "timeline"],
             "confidence": 0.95,
-            "reasoning": "Brief explanation"
+            "reasoning": "Brief explanation",
+            "key_rules_found": ["list", "of", "explicit", "rules"],
+            "key_concepts": ["list", "of", "important", "concepts"]
         }}
         """
         
@@ -108,19 +117,31 @@ class DiagramGenerator:
         """Generate flowchart diagram for trading systems"""
         
         prompt = f"""
+        CRITICAL: This is a TRADING SYSTEM. You MUST extract and represent EVERY rule, condition, and decision point explicitly.
+        
         Create a Mermaid.js flowchart from this trading video transcript.
-        Focus on: decision points, entry/exit rules, risk management steps.
+        
+        FOCUS ON:
+        1. EXPLICIT RULES: Every "if X then Y", "always do Z", "never do W" must be captured
+        2. DECISION POINTS: All yes/no questions in the trading process
+        3. ENTRY/EXIT RULES: Exact conditions for opening and closing trades
+        4. RISK MANAGEMENT: Position sizing rules, stop loss rules, take profit rules
+        5. DISCIPLINE RULES: What to do, what NOT to do
         
         Format: Pure Mermaid.js code only, no markdown formatting.
         
+        IMPORTANT: Trading requires DISCIPLINE. Every rule taught by the mentor is KEY and must be in the flowchart.
+        Do NOT skip any concept or rule - ALL are important for trading success.
+        
         Transcript:
-        {transcript_text[:8000]}
+        {transcript_text}
         
         Generate flowchart with:
         - Start/End nodes (rounded rectangles)
-        - Decision points (diamonds)
-        - Process steps (rectangles)
-        - Clear labels and connections
+        - Decision points (diamonds) with EXPLICIT conditions
+        - Process steps (rectangles) with CLEAR actions
+        - All rules must be visible and actionable
+        - Use trading terminology correctly
         
         Output ONLY the Mermaid code:
         """
@@ -142,13 +163,21 @@ class DiagramGenerator:
         """Generate mindmap for trading concepts"""
         
         prompt = f"""
+        CRITICAL: This is TRADING EDUCATION. EVERY concept taught by the mentor is IMPORTANT and must be included.
+        
         Create a Mermaid.js mindmap from this trading video transcript.
-        Extract key concepts, strategies, and their relationships.
+        
+        REQUIREMENTS:
+        1. Capture ALL trading concepts, strategies, and principles
+        2. Show relationships between concepts clearly
+        3. Include: technical analysis, risk management, psychology, strategy rules
+        4. NO concept should be omitted - all are crucial for trading success
+        5. Structure hierarchically: Main concepts → Sub-concepts → Details
         
         Format: Pure Mermaid.js code only.
         
         Transcript:
-        {transcript_text[:8000]}
+        {transcript_text}
         
         Output ONLY the Mermaid code:
         """
@@ -168,12 +197,17 @@ class DiagramGenerator:
         
         prompt = f"""
         Create a Mermaid.js timeline from this trading video transcript.
-        Extract dates, times, events, and trading activities.
+        
+        EXTRACT:
+        1. All trading sessions and times
+        2. Every trade taken (entry time, exit time, result)
+        3. Key events and decisions
+        4. Review points and lessons learned
         
         Format: Pure Mermaid.js code only.
         
         Transcript:
-        {transcript_text[:8000]}
+        {transcript_text}
         
         Output ONLY the Mermaid code:
         """

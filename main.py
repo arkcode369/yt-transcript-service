@@ -275,25 +275,28 @@ async def generate_summary(transcript_text: str, language: str) -> str:
         logger.warning("LITELLM_API_KEY not set, skipping summary generation")
         return "Summary generation skipped: API key not configured"
     
-    # Limit transcript length to avoid token limits
-    max_chars = 15000
-    if len(transcript_text) > max_chars:
-        logger.info(f"Truncating transcript from {len(transcript_text)} to {max_chars} characters")
-        transcript_text = transcript_text[:max_chars] + "... [truncated]"
+    # NO TRUNCATION for trading - all content is important
+    # But we'll let the model handle long context (Opus supports 1M tokens)
     
     prompt = f"""
-    Please summarize the following video transcript in {language} language.
+    CRITICAL: This is TRADING EDUCATION content. EVERY concept, rule, and principle is IMPORTANT.
+    
+    Please create a COMPREHENSIVE summary of this trading video transcript in {language} language.
     
     Guidelines:
-    - Create a concise summary (2-3 paragraphs)
-    - Highlight key points and main ideas
-    - Maintain the original context and meaning
-    - Use natural, flowing language
+    1. Capture ALL key concepts taught by the mentor
+    2. EXPLICITLY state all RULES and conditions (e.g., "always do X", "never do Y", "if A then B")
+    3. Highlight entry/exit rules, risk management rules, and psychological principles
+    4. Maintain the original context and meaning
+    5. Be thorough - trading requires DISCIPLINE and understanding ALL concepts
+    6. Structure: Main strategy → Rules → Risk management → Psychology
+    
+    IMPORTANT: Do NOT skip any important concept. Trading success depends on following ALL rules consistently.
     
     Transcript:
     {transcript_text}
     
-    Summary:
+    Comprehensive Summary:
     """
     
     async with httpx.AsyncClient() as client:
@@ -309,15 +312,15 @@ async def generate_summary(transcript_text: str, language: str) -> str:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a helpful assistant that summarizes video transcripts."
+                            "content": "You are a trading education expert. Create comprehensive summaries that capture ALL rules and concepts."
                         },
                         {
                             "role": "user",
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 2000,
-                    "temperature": 0.7
+                    "max_tokens": 4000,  # Increased for comprehensive summary
+                    "temperature": 0.6  # Slightly lower for more accurate rule extraction
                 },
                 timeout=120.0
             )
@@ -339,18 +342,24 @@ async def generate_combined_summary(video_summaries: List[str], language: str) -
     combined_text = "\n\n---\n\n".join(video_summaries)
     
     prompt = f"""
-    Please create a combined summary of the following video transcripts in {language} language.
+    CRITICAL: These are TRADING EDUCATION videos. EVERY rule, concept, and principle across ALL videos is IMPORTANT.
+    
+    Please create a COMPREHENSIVE combined summary of the following trading video transcripts in {language} language.
     
     Guidelines:
-    - Create an overarching summary that captures themes across all videos
-    - Highlight common topics and key insights
-    - Note any progression or relationships between videos
-    - Keep it concise but comprehensive (3-5 paragraphs)
+    1. Capture ALL key concepts from ALL videos - nothing should be omitted
+    2. EXPLICITLY state all RULES that appear across videos
+    3. Identify common themes and how concepts build on each other
+    4. Highlight the complete trading system/strategy taught
+    5. Include: strategy rules, risk management, psychology, execution flow
+    6. Structure logically: Overview → Strategy → Rules → Risk → Psychology
+    
+    IMPORTANT: Trading requires DISCIPLINE. The combined summary must be complete so the trader can follow ALL rules consistently.
     
     Individual Video Summaries:
     {combined_text}
     
-    Combined Summary:
+    Comprehensive Combined Summary:
     """
     
     async with httpx.AsyncClient() as client:
@@ -366,15 +375,15 @@ async def generate_combined_summary(video_summaries: List[str], language: str) -
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are a helpful assistant that creates combined summaries of multiple video transcripts."
+                            "content": "You are a trading education expert. Create comprehensive combined summaries capturing ALL rules and concepts."
                         },
                         {
                             "role": "user",
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 3000,
-                    "temperature": 0.7
+                    "max_tokens": 6000,  # Increased for comprehensive combined summary
+                    "temperature": 0.6
                 },
                 timeout=180.0
             )
