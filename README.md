@@ -176,8 +176,8 @@ Health check endpoint.
 ### YouTube
 - Requires video to have transcripts enabled (manual or auto-generated)
 - Private/unlisted videos are not supported
-- Summary limited to ~15k characters of transcript
-- Playlist support requires YouTube Data API key for full functionality
+- **NO transcript length limits** - Full transcript processed (Claude Opus 4.6 supports 1M tokens)
+- Summary uses full context for comprehensive output
 
 ### Google Drive
 - Video must be publicly accessible or shared with "anyone with link"
@@ -185,6 +185,13 @@ Health check endpoint.
 - Audio extraction may take time for large videos
 - ASR transcription requires integration with speech-to-text service
 - Folder support requires Google Drive API credentials
+
+### Cost & Performance
+- **NO character/token limits** - All content is processed
+- Full transcript extraction for maximum accuracy
+- Comprehensive summaries capture ALL rules and concepts
+- Diagram generation uses complete context
+- Optimized for trading education where EVERY detail matters
 
 ## Development
 
