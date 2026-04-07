@@ -319,8 +319,8 @@ async def generate_summary(transcript_text: str, language: str) -> str:
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 4000,  # Increased for comprehensive summary
-                    "temperature": 0.6  # Slightly lower for more accurate rule extraction
+                    "max_tokens": 0,  # No limit - comprehensive summary
+                    "temperature": 0.6
                 },
                 timeout=120.0
             )
@@ -382,7 +382,7 @@ async def generate_combined_summary(video_summaries: List[str], language: str) -
                             "content": prompt
                         }
                     ],
-                    "max_tokens": 6000,  # Increased for comprehensive combined summary
+                    "max_tokens": 0,  # No limit - full combined summary
                     "temperature": 0.6
                 },
                 timeout=180.0

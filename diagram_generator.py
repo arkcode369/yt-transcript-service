@@ -92,7 +92,7 @@ class DiagramGenerator:
                             {"role": "system", "content": "You are a diagram expert specializing in trading content."},
                             {"role": "user", "content": prompt}
                         ],
-                        "max_tokens": 500,
+                        "max_tokens": 0,  # No limit - let model output all needed content
                         "temperature": 0.3
                     },
                     timeout=60.0
@@ -264,7 +264,7 @@ class DiagramGenerator:
                             {"role": "system", "content": "You are an expert at creating Mermaid.js diagrams from text."},
                             {"role": "user", "content": prompt}
                         ],
-                        "max_tokens": 1500,
+                        "max_tokens": 0,  # No limit - full diagram code
                         "temperature": 0.4
                     },
                     timeout=90.0
