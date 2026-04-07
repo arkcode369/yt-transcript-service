@@ -1,7 +1,7 @@
 """
 YouTube & Google Drive Transcript Service
 Extracts transcripts from YouTube videos, playlists, and Google Drive videos.
-Generates summaries using AI.
+Generates summaries and diagrams using AI.
 """
 
 import os
@@ -19,6 +19,9 @@ from youtube_transcript_api._errors import YouTubeTranscriptApiError
 import httpx
 import logging
 import gdown
+
+# Import diagram generator
+from diagram_generator import DiagramGenerator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -43,12 +46,21 @@ Path(WORKSPACE_DIR).mkdir(parents=True, exist_ok=True)
 # Cache for transcripts
 transcript_cache = {}
 
+# Initialize diagram generator
+diagram_generator = DiagramGenerator(
+    litellm_api_base=LITELLM_API_BASE,
+    litellm_api_key=LITELLM_API_KEY,
+    model=SUMMARY_MODEL
+)
+
 
 class TranscriptRequest(BaseModel):
     url: str
     generate_summary: bool = True
     summary_language: str = "id"
     combine_playlist_summary: bool = True  # For playlists: combine all into one summary
+    generate_diagrams: bool = True  # Generate Mermaid diagrams
+    diagram_types: Optional[List[str]] = None  # Specific types: flowchart, mindmap, timeline, sequence
 
 
 class VideoTranscript(BaseModel):
@@ -70,6 +82,8 @@ class TranscriptResponse(BaseModel):
     # For playlists/folders
     total_videos: int = 1
     video_results: Optional[List['TranscriptResponse']] = None
+    # Diagrams
+    diagrams: Optional[Dict[str, Any]] = None  # Generated Mermaid diagrams
 
 
 class SummaryRequest(BaseModel):
@@ -439,13 +453,28 @@ async def transcribe_youtube_video(request: TranscriptRequest) -> TranscriptResp
         if request.generate_summary and full_text:
             summary = await generate_summary(full_text, request.summary_language)
         
+        # Generate diagrams if requested
+        diagrams = None
+        if request.generate_diagrams and full_text:
+            try:
+                logger.info("Generating diagrams...")
+                diagram_result = await diagram_generator.generate_all_diagrams(
+                    full_text,
+                    video_id  # Use video_id as title
+                )
+                diagrams = diagram_result
+            except Exception as e:
+                logger.error(f"Diagram generation failed: {str(e)}")
+                diagrams = {"error": f"Diagram generation failed: {str(e)}"}
+        
         return TranscriptResponse(
             source_type="youtube",
             video_id=video_id,
             transcript=transcript,
             full_text=full_text,
             summary=summary,
-            duration_seconds=duration_seconds
+            duration_seconds=duration_seconds,
+            diagrams=diagrams
         )
         
     except HTTPException:
